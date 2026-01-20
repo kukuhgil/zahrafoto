@@ -1,9 +1,6 @@
 # 📸 Zahra's Photobooth `Beta V 0.3`
 > "Pure moments, captured. Build with heart for Zahrotul Laili ❤️"
 
-[![Live Demo](https://img.shields.io/badge/demo-online-brightgreen?style=for-the-badge)](https://zahrafoto.vercel.app/)
-[![Version](https://img.shields.io/badge/version-0.3--beta-pink?style=for-the-badge)](https://github.com/kukuhgil/appcamera)
-
 A minimalist web-based photobooth application designed specifically for PC and iPad scales. Capture your aesthetic moments directly from the browser with extensive customization.
 
 ---
