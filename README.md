@@ -1,15 +1,16 @@
-# 📸 Zahra's Photobooth `Beta V 0.3`
+# 📸 Zahra's Photobooth `V 0.4 - The Creative Update`
 > "Pure moments, captured. Build with heart for Zahrotul Laili ❤️"
 
-A minimalist web-based photobooth application designed specifically for PC and iPad scales. Capture your aesthetic moments directly from the browser with extensive customization.
+A high-quality web-based photobooth specifically designed and optimized for Desktop and iPad scales. Experience real-time creativity with professional filters and seamless customization.
 
 ---
 
-### ✨ What's New in V 0.3?
-- **📷 Camera Input Select:** Choose your preferred camera source (DroidCam, Webcam, etc).
-- **🧭 Fixed Navigation:** Optimized Previous & Next buttons logic for a smoother flow.
-- **⚡ Performance Polish:** Removed heavy animations and fixed minor UI bugs.
-- **🎨 Visual Update:** Improved layout for customization steps.
+### ✨ What's New in V 0.4?
+- **📤 Photo Upload Support:** Tidak terbatas pada kamera, sekarang kamu bisa mengunggah foto langsung dari perangkat untuk diproses ke dalam layout photobooth.
+- **🎞️ Live Mode Toggle:** Pratinjau efek, filter, dan elemen estetika secara real-time langsung di canvas sebelum memotret.
+- **🔄 Smart Reset Button:** Kembalikan semua konfigurasi (timer, shot, filter) ke pengaturan awal secara instan tanpa memuat ulang halaman.
+- **🎨 Boothscreen Relayout:** Penataan ulang antarmuka di Boothscreen yang mengintegrasikan filter langsung dengan canvas untuk alur kerja yang lebih intuitif.
+- **🛠️ Bug Fixes:** Optimalisasi performa Canvas API dan perbaikan minor pada sistem navigasi.
 
 ---
 
@@ -17,33 +18,33 @@ A minimalist web-based photobooth application designed specifically for PC and i
 
 | Section | Features |
 | :--- | :--- |
-| **Shots** | Custom Timer, Set Photo Count (1,2,3, 4, or 6 shots). |
+| **Input Source** | Live Camera selection (DroidCam/Webcam) & **New: Image Upload Support**. |
+| **Live Editing** | **New: Live Mode** untuk melihat perubahan filter dan frame secara instan di canvas. |
+| **Shots** | Custom Timer, Set Photo Count (1, 2, 3, 4, or 6 shots). |
 | **Filters** | Pro-grade filters: Instax, Nordic, Midnight, Cyber, Vintage, and more. |
-| **Background** | Solid Colors, Store-branded Colors, or Upload Custom Images. |
+| **Background** | Solid Colors, Store-branded Colors, or Upload Custom Backgrounds. |
 | **Aesthetics** | Set Emojis, Custom Text, Auto/Custom Date, and Textures. |
-| **Frames** | PNG Frame Templates support (On Progress). |
 
 ---
 
 ### 🎨 Design & Customization
-Built with a focus on clean typography and intuitive user experience:
-- **Fonts:** *Fraunces* for elegance & *Jost* for modern readability.
-- **Responsive:** Optimized for **PC Desktop** and **iPad Landscape**.
-- **Theming:** Full support for Light and Dark mode.
+- **Fonts:** *Fraunces* untuk kesan elegan & *Jost* untuk keterbacaan modern.
+- **Theming:** Dukungan penuh untuk Light dan Dark mode.
+- **Canvas Engine:** Pemrosesan gambar real-time menggunakan Vanilla JavaScript Canvas API.
 
 ---
 
 ### 🛠️ Tech Stack
-- **Frontend:** Pure HTML5, CSS3 (Flexbox/Grid), and Vanilla JavaScript.
-- **Processing:** Canvas API for real-time collage generation.
+- **Frontend:** Pure HTML5, CSS3 (Advanced Flexbox/Grid), and Vanilla JavaScript.
+- **Processing:** Canvas API for real-time collage & filter generation.
 - **Icons:** Feather Icons.
 
 ---
 
 ### 📱 Device Scale
-- ✅ **PC / Desktop** (1920x1080 recommended)
-- ✅ **iPad / Tablet** (Landscape)
-- ❌ **Mobile** (Coming Soon)
+- ✅ **PC / Desktop** (Recommended: 1920x1080)
+- ✅ **iPad / Tablet** (Landscape Optimized)
+- ❌ **Mobile** (Not Supported)
 
 ---
 
