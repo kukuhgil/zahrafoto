@@ -144,6 +144,44 @@
         </div>
     </section>
 
+    <section id="frameTemplateScreen" class="screen" style="display:none;">
+        <div class="setup-wrapper">
+            <header class="setup-header">
+                <h2>PILIH FRAME TEMPLATE</h2>
+                <p class="section-text">Pilih template frame atau lewati untuk custom frame di editor</p>
+            </header>
+
+            <div class="frame-content-area">
+                <div class="photo-count-indicator">
+                    <i data-feather="camera"></i>
+                    <div class="photo-count-text">
+                        Jumlah foto yang dipilih: <strong>${USER_SETTINGS.count} foto</strong> •
+                        Ukuran: <strong>${USER_SETTINGS.count === 1 ? '5×10cm' : '5×15cm'}</strong>
+                    </div>
+                </div>
+
+                <div class="frame-gallery-container" id="frameSelectionContainer">
+                    <div class="frame-grid-layout" id="frameGrid">
+                    </div>
+                </div>
+
+                <p class="selection-instructions">Klik frame untuk memilih • Scroll untuk melihat lebih banyak pilihan
+                </p>
+            </div>
+
+            <div class="setup-footer">
+                <button id="skipFrameBtn" class="nav-btn">
+                    <i data-feather="skip-forward"></i>
+                    Lewati (Custom Frame)
+                </button>
+                <button id="confirmFrameBtn" class="nav-btn" disabled>
+                    <i data-feather="check-circle"></i>
+                    Gunakan Frame Template
+                </button>
+            </div>
+        </div>
+    </section>
+
     <section id="boothScreen" class="screen">
         <div class="booth-wrap">
             <div class="control-group-container">
@@ -196,7 +234,8 @@
                 <div class="filter-horizontal-container">
                     <div class="filter-header"
                         style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                        <label class="section-label" style="margin: 0;">LIVE EFFECTS <span class="section-text">(Pilih hanya satu filter)</span><span style="color: red;">*</span></label>
+                        <label class="section-label" style="margin: 0;">LIVE EFFECTS <span class="section-text">(Pilih
+                                hanya satu filter)</span><span style="color: red;">*</span></label>
                     </div>
 
                     <div id="filterContent" class="filter-nav-wrapper">
@@ -285,14 +324,6 @@
                         <div id="textureGallery" class="texture-gallery"></div>
                         <button id="removeTextureBtn" class="delete-btn-bg" onclick="removeSpecificBg('texture')"
                             style="margin-top:10px; width: 100%;">Remove Texture</button>
-                    </div>
-                    <div class="editor-group">
-                        <label>Frame Template</label>
-                        <div id="frameTemplateGallery" class="texture-gallery">
-                        </div>
-                        <button id="removeFrameBtn" style="display: none;" onclick="removeFrameTemplate()">
-                            Remove Frame Template
-                        </button>
                     </div>
                 </div>
 

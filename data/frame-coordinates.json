@@ -1,0 +1,154 @@
+{
+  "3": {
+    "templates": {
+      "2": {
+        "fileName": "2-kpop.png",
+        "displayName": "Pink & Violet Kpop",
+        "type": "Potrait",
+        "canvasWidth": 591,
+        "canvasHeight": 1772,
+        "photoCoordinates": [
+          {
+            "x": 92,
+            "y": 96,
+            "width": 409,
+            "height": 509,
+            "rotation": 0
+          },
+          {
+            "x": 92,
+            "y": 629,
+            "width": 410,
+            "height": 510,
+            "rotation": 0
+          },
+          {
+            "x": 89,
+            "y": 1163,
+            "width": 413,
+            "height": 508,
+            "rotation": 0
+          }
+        ]
+      },
+      "3": {
+        "fileName": "3-bunga.png",
+        "displayName": "Flower",
+        "type": "Portrait",
+        "canvasWidth": 455,
+        "canvasHeight": 1840,
+        "photoCoordinates": [
+          {
+            "x": 36,
+            "y": 33,
+            "width": 387,
+            "height": 514
+          },
+          {
+            "x": 36,
+            "y": 574,
+            "width": 387,
+            "height": 513
+          },
+          {
+            "x": 36,
+            "y": 1110,
+            "width": 386,
+            "height": 515
+          }
+        ]
+      },
+      "4": {
+        "fileName": "4-cute-soft.png",
+        "displayName": "Cute Soft",
+        "type": "Cube",
+        "canvasWidth": 455,
+        "canvasHeight": 1840,
+        "photoCoordinates": [
+          {
+            "x": 38,
+            "y": 36,
+            "width": 379,
+            "height": 378
+          },
+          {
+            "x": 37,
+            "y": 577,
+            "width": 381,
+            "height": 428
+          },
+          {
+            "x": 36,
+            "y": 1116,
+            "width": 383,
+            "height": 378
+          }
+        ]
+      },
+      "5": {
+        "fileName": "5-1995.png",
+        "displayName": "The 1975",
+        "type": "Cube",
+        "canvasWidth": 591,
+        "canvasHeight": 1772,
+        "photoCoordinates": [
+          {
+            "x": 52,
+            "y": 52,
+            "width": 484,
+            "height": 425
+          },
+          {
+            "x": 51,
+            "y": 529,
+            "width": 485,
+            "height": 429
+          },
+          {
+            "x": 53,
+            "y": 1010,
+            "width": 481,
+            "height": 425
+          }
+        ]
+      }
+    }
+  },
+  "4": {
+    "templates": {
+      "1": {
+        "fileName": "4-bwframe.png",
+        "displayName": "Black White Frame",
+        "type": "Cube",
+        "canvasWidth": 591,
+        "canvasHeight": 1772,
+        "photoCoordinates": [
+          {
+            "x": 102,
+            "y": 78,
+            "width": 387,
+            "height": 392
+          },
+          {
+            "x": 101,
+            "y": 476,
+            "width": 387,
+            "height": 390
+          },
+          {
+            "x": 100,
+            "y": 904,
+            "width": 390,
+            "height": 392
+          },
+          {
+            "x": 100,
+            "y": 1303,
+            "width": 388,
+            "height": 390
+          }
+        ]
+      }
+    }
+  }
+}

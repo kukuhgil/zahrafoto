@@ -38,7 +38,7 @@ const USER_SETTINGS = {
 
 const TEXTURE_PATH = 'texture/';
 const FRAME_PATH = 'frame/';
-const TEXTURES = ['1.png', '2.png', '3.png', '4.png', '5.png', '6.png', '7.png','8.png','9.png','10.png','11.png','12.png','13.png','14.png','15.png'];
+const TEXTURES = ['1.png', '2.png', '3.png', '4.png', '5.png', '6.png', '7.png', '8.png', '9.png', '10.png', '11.png', '12.png', '13.png', '14.png', '15.png'];
 
 const appFlow = ['startScreen', 'tutorialScreen', 'setupScreen', 'boothScreen', 'resultScreen'];
 let currentFlowIndex = 0;
@@ -53,6 +53,7 @@ let activeFilter = 'normal';
 let currentStep = 1;
 let isMirrored = true;
 let currentDeviceId = null;
+let frameCoordinates = {};
 
 
 const video = document.getElementById('video');
@@ -70,12 +71,155 @@ document.addEventListener('DOMContentLoaded', () => {
     initTextureGallery();
     initFrameGallery();
     setupEventListeners();
+    loadFrameCoordinates();
 
     isMirrored = true;
     if (video) {
         video.classList.add('mirrored');
     }
 });
+
+function renderFrameTemplateSelection() {
+    console.log('🔍 renderFrameTemplateSelection dipanggil, count:', USER_SETTINGS.count);
+
+    const container = document.getElementById('frameGrid');
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    // Update photo count indicator
+    const photoCountText = document.querySelector('.photo-count-text');
+    if (photoCountText) {
+        photoCountText.innerHTML = `
+            Jumlah foto yang dipilih: <strong>${USER_SETTINGS.count} foto</strong> • 
+            Ukuran: <strong>${USER_SETTINGS.count === 1 ? '5×10cm' : '5×15cm'}</strong>
+        `;
+    }
+
+    // SELALU tampilkan "Tanpa Frame" (custom texture)
+    const noFrameCard = document.createElement('div');
+    noFrameCard.className = 'frame-card';
+    noFrameCard.setAttribute('data-type', 'noframe');
+    noFrameCard.innerHTML = `
+        <div class="frame-preview">
+            <i data-feather="box" class="frame-icon"></i>
+        </div>
+        <div class="frame-info">
+            <div class="frame-title">Tanpa Frame</div>
+            <div class="frame-desc">Custom warna & texture</div>
+        </div>
+        <div class="frame-badge">CUSTOM</div>
+    `;
+    noFrameCard.onclick = (e) => {
+        e.stopPropagation();
+        selectFrameTemplate(null);
+    };
+
+    // Default pilih "Tanpa Frame" kalau belum ada pilihan
+    if (!USER_SETTINGS.frameID) {
+        noFrameCard.classList.add('active');
+        document.getElementById('confirmFrameBtn').disabled = false;
+    }
+
+    container.appendChild(noFrameCard);
+
+    // ========== CEK APAKAH ADA DATA TEMPLATE ==========
+    const count = USER_SETTINGS.count;
+    const templates = frameCoordinates[count]?.templates;
+
+    if (!templates || Object.keys(templates).length === 0) {
+        console.log(`ℹ️ Tidak ada template untuk ${count} foto, hanya tampilkan custom`);
+        feather.replace();
+        return; // BERHENTI DI SINI, tidak render template apa-apa
+    }
+
+    // HANYA render template jika ada di JSON
+    console.log(`🎨 Ada ${Object.keys(templates).length} template untuk ${count} foto`);
+
+    Object.keys(templates).forEach(templateId => {
+        const template = templates[templateId];
+
+        if (!template || !template.fileName) {
+            console.warn(`Template ${templateId} tidak valid`);
+            return;
+        }
+
+        const frameCard = document.createElement('div');
+        frameCard.className = 'frame-card';
+        frameCard.setAttribute('data-type', 'template');
+        frameCard.setAttribute('data-template-id', templateId);
+
+        const previewUrl = `frame/${count}/${template.fileName}`;
+
+        frameCard.innerHTML = `
+            <div class="frame-preview" style="background-image: url('${previewUrl}')"></div>
+            <div class="frame-info">
+                <div class="frame-title">${template.displayName || `Template ${templateId}`}</div>
+                <div class="frame-desc">${template.type || 'Layout'} • ${count} foto</div>
+            </div>
+            <div class="frame-badge">${(template.type || 'TEMPLATE').toUpperCase()}</div>
+        `;
+
+        frameCard.onclick = (e) => {
+            e.stopPropagation();
+            selectFrameTemplate(templateId);
+        };
+
+        if (USER_SETTINGS.frameID === templateId) {
+            frameCard.classList.add('active');
+            document.getElementById('confirmFrameBtn').disabled = false;
+        }
+
+        container.appendChild(frameCard);
+    });
+
+    feather.replace();
+}
+
+// Fungsi fallback jika tidak ada data di frameCoordinates
+function renderFallbackTemplates(container, count) {
+    console.log('Menggunakan fallback templates 1-10');
+    for (let i = 1; i <= 10; i++) {
+        const templateId = i.toString();
+        const frameCard = document.createElement('div');
+        frameCard.className = 'frame-card';
+        frameCard.setAttribute('data-type', 'template');
+        frameCard.setAttribute('data-template-id', templateId);
+
+        const previewUrl = `frame/${count}/${templateId}.png`;
+
+        frameCard.innerHTML = `
+            <div class="frame-preview" style="background-image: url('${previewUrl}')"></div>
+            <div class="frame-info">
+                <div class="frame-title">Template ${templateId}</div>
+                <div class="frame-desc">Layout untuk ${count} foto</div>
+            </div>
+            <div class="frame-badge">TEMPLATE</div>
+            <div class="frame-dimensions">${count === 1 ? '5×10cm' : '5×15cm'}</div>
+        `;
+
+        frameCard.onclick = (e) => {
+            e.stopPropagation();
+            selectFrameTemplate(templateId);
+        };
+
+        if (USER_SETTINGS.frameID === templateId) {
+            frameCard.classList.add('active');
+            document.getElementById('confirmFrameBtn').disabled = false;
+        }
+
+        container.appendChild(frameCard);
+    }
+}
+async function loadFrameCoordinates() {
+    try {
+        const response = await fetch('data/frame-coordinates.json');
+        frameCoordinates = await response.json();
+    } catch (error) {
+        console.error("Gagal load frame coordinates:", error);
+        frameCoordinates = {};
+    }
+}
 
 
 function setupEventListeners() {
@@ -146,6 +290,21 @@ function setupEventListeners() {
             if (document.getElementById('boothScreen').style.display !== 'none') {
                 await startVideo();
             }
+        });
+    }
+    const skipFrameBtn = document.getElementById('skipFrameBtn');
+    if (skipFrameBtn) {
+        skipFrameBtn.addEventListener('click', () => {
+            USER_SETTINGS.frameID = null;
+            USER_SETTINGS.frameCoordinates = null;
+            showScreen('boothScreen');
+        });
+    }
+
+    const confirmFrameBtn = document.getElementById('confirmFrameBtn');
+    if (confirmFrameBtn) {
+        confirmFrameBtn.addEventListener('click', () => {
+            showScreen('boothScreen');
         });
     }
 }
@@ -280,10 +439,50 @@ function confirmSetup() {
     shots = [];
     currentShot = 0;
     replaceIndex = null;
-    showScreen('boothScreen');
-    updatePreview();
+
+    // Reset frame template selection
+    USER_SETTINGS.frameID = null;
+    USER_SETTINGS.frameCoordinates = null;
+
+    // Render frame template selection
+    renderFrameTemplateSelection();
+
+    // Tampilkan frame template screen
+    showScreen('frameTemplateScreen');
 }
 
+function selectFrameTemplate(templateId) {
+    // Update seleksi visual
+    document.querySelectorAll('.frame-card').forEach(card => {
+        card.classList.remove('active');
+    });
+
+    // Cari card yang diklik berdasarkan templateId
+    const selectedCard = document.querySelector(`.frame-card[data-template-id="${templateId}"]`) ||
+        document.querySelector('.frame-card[data-type="noframe"]');
+
+    if (selectedCard) {
+        selectedCard.classList.add('active');
+    }
+
+    // Simpan pilihan
+    USER_SETTINGS.frameID = templateId;
+
+    // Jika memilih template, load koordinatnya
+    if (templateId && frameCoordinates && frameCoordinates[USER_SETTINGS.count]) {
+        USER_SETTINGS.frameCoordinates = frameCoordinates[USER_SETTINGS.count].templates[templateId];
+    } else {
+        USER_SETTINGS.frameCoordinates = null;
+    }
+
+    // Aktifkan tombol konfirmasi
+    const confirmFrameBtn = document.getElementById('confirmFrameBtn');
+    if (confirmFrameBtn) {
+        confirmFrameBtn.disabled = false;
+    }
+
+    console.log('Frame template selected:', templateId);
+}
 
 async function initCameraList() {
     const select = document.getElementById('cameraSelect');
@@ -537,6 +736,15 @@ function syncEditorInputs() {
     } else {
         customDateInput.style.display = 'none';
     }
+
+    const frameTemplateSection = document.getElementById('step3').querySelector('.editor-group:last-child');
+    if (frameTemplateSection) {
+        if (USER_SETTINGS.frameID) {
+            frameTemplateSection.style.display = 'none';
+        } else {
+            frameTemplateSection.style.display = 'block';
+        }
+    }
 }
 
 window.updateLiveSettings = function () {
@@ -752,22 +960,43 @@ function getFrameCoordinates(totalShots, index, canvasW, canvasH) {
 
 }
 
-function drawImageToRect(targetCtx, img, rect, mode = 'cover') {
+function drawImageToRect(targetCtx, img, rect, mode = 'cover', rotation = 0) {
+    targetCtx.save();
+    
+    // Jika ada rotasi, apply transform
+    if (rotation !== 0) {
+        // Hitung pusat rotasi
+        const centerX = rect.x + rect.w / 2;
+        const centerY = rect.y + rect.h / 2;
+        
+        // Pindah ke pusat, rotasi, lalu kembali
+        targetCtx.translate(centerX, centerY);
+        targetCtx.rotate(rotation * Math.PI / 180);
+        targetCtx.translate(-centerX, -centerY);
+    }
+    
     if (mode === 'fit') {
         targetCtx.drawImage(img, 0, 0, img.width, img.height, rect.x, rect.y, rect.w, rect.h);
     } else {
         const imgRatio = img.width / img.height;
         const rectRatio = rect.w / rect.h;
         let sx, sy, sw, sh;
+        
         if (imgRatio > rectRatio) {
-            sh = img.height; sw = img.height * rectRatio;
-            sx = (img.width - sw) / 2; sy = 0;
+            sh = img.height; 
+            sw = img.height * rectRatio;
+            sx = (img.width - sw) / 2; 
+            sy = 0;
         } else {
-            sw = img.width; sh = img.width / rectRatio;
-            sx = 0; sy = (img.height - sh) / 2;
+            sw = img.width; 
+            sh = img.width / rectRatio;
+            sx = 0; 
+            sy = (img.height - sh) / 2;
         }
         targetCtx.drawImage(img, sx, sy, sw, sh, rect.x, rect.y, rect.w, rect.h);
     }
+    
+    targetCtx.restore();
 }
 
 async function makeCollage() {
@@ -776,143 +1005,139 @@ async function makeCollage() {
     const offCanvas = document.createElement('canvas');
     const offCtx = offCanvas.getContext('2d');
 
-    const margin = 40;
-    const photoW = 375;
-    const photoH = 500;
-    const isDoubleStrip = maxShots > 3;
-    const shotsPerStrip = isDoubleStrip ? Math.ceil(maxShots / 2) : maxShots;
-    const singleStripW = photoW + (margin * 2);
+    // Deklarasi textColor di scope terluar
+    let textColor = "#000000";
 
-    offCanvas.width = isDoubleStrip ? (singleStripW * 2) : singleStripW;
-    offCanvas.height = (photoH * shotsPerStrip) + (margin * (shotsPerStrip + 1)) + 180;
+    // Tentukan apakah menggunakan frame template atau layout custom
+    const useFrameTemplate = USER_SETTINGS.frameID && USER_SETTINGS.frameCoordinates;
 
+    // Jika menggunakan frame template, gunakan koordinat dari JSON
+    if (useFrameTemplate) {
+        const frameData = USER_SETTINGS.frameCoordinates;
 
-    offCtx.clearRect(0, 0, offCanvas.width, offCanvas.height);
+        // Set ukuran canvas dari frame data
+        offCanvas.width = frameData.canvasWidth || 680;
+        offCanvas.height = frameData.canvasHeight || 1690;
 
+        // Clear canvas
+        offCtx.clearRect(0, 0, offCanvas.width, offCanvas.height);
 
-    let useFramePNG = false;
-    const frameImg = new Image();
-
-    if (USER_SETTINGS.frameID) {
-        const currentFramePath = `frame/${maxShots}/${USER_SETTINGS.frameID}.png`;
-        frameImg.crossOrigin = "anonymous";
-        frameImg.src = `${currentFramePath}?t=${Date.now()}`;
-
-        try {
-            await new Promise((resolve, reject) => {
-                frameImg.onload = () => { useFramePNG = true; resolve(); };
-                frameImg.onerror = () => { useFramePNG = false; resolve(); };
-            });
-        } catch { useFramePNG = false; }
-    }
-
-    const renderStripSection = async (offsetX, isRightStrip) => {
-        const stripRect = { x: offsetX, y: 0, w: singleStripW, h: offCanvas.height };
-        let textColor = "#000000";
-
-
+        // Render background jika ada
         if (USER_SETTINGS.bgImage) {
             const bgImg = new Image();
             bgImg.src = USER_SETTINGS.bgImage;
             await new Promise(r => bgImg.onload = r);
 
             let mode = 'cover';
-
             if (USER_SETTINGS.bgImage.includes('texture/')) {
                 mode = 'fit';
             }
 
-            else if (USER_SETTINGS.bgImage.startsWith('data:')) {
-                mode = 'cover';
-            }
+            drawImageToRect(offCtx, bgImg, {
+                x: 0,
+                y: 0,
+                w: offCanvas.width,
+                h: offCanvas.height
+            }, mode);
 
-
-            drawImageToRect(offCtx, bgImg, stripRect, mode);
-
-
+            // Tentukan warna teks berdasarkan background
             if (typeof getAverageColor === 'function') {
                 textColor = getContrastColor(getAverageColor(bgImg));
             }
         } else {
+            // Render warna background solid
             offCtx.fillStyle = USER_SETTINGS.useStoreColor ? USER_SETTINGS.storeColor : USER_SETTINGS.frameColor;
-            offCtx.fillRect(stripRect.x, stripRect.y, stripRect.w, stripRect.h);
+            offCtx.fillRect(0, 0, offCanvas.width, offCanvas.height);
 
             if (USER_SETTINGS.useStoreColor) {
                 const border = 15;
                 offCtx.fillStyle = USER_SETTINGS.frameColor;
-                offCtx.fillRect(stripRect.x + border, stripRect.y + border,
-                    stripRect.w - (border * 2), stripRect.h - (border * 2));
+                offCtx.fillRect(border, border,
+                    offCanvas.width - (border * 2),
+                    offCanvas.height - (border * 2));
             }
+
+            // Tentukan warna teks
             textColor = USER_SETTINGS.useStoreColor ?
                 getContrastColor(USER_SETTINGS.storeColor) :
                 getContrastColor(USER_SETTINGS.frameColor);
         }
 
+        // Render foto-foto pada posisi yang ditentukan frame template
+        for (let i = 0; i < Math.min(shots.length, frameData.photoCoordinates.length); i++) {
+            if (shots[i]) {
+                const img = new Image();
+                img.src = shots[i];
+                await new Promise(r => img.onload = r);
 
+                const coord = frameData.photoCoordinates[i];
+                const photoRect = {
+                    x: Math.round(coord.x),
+                    y: Math.round(coord.y),
+                    w: Math.round(coord.width),
+                    h: Math.round(coord.height)
+                };
 
-        for (let i = 0; i < shotsPerStrip; i++) {
-            let currentIdx = isDoubleStrip ? (isRightStrip ? (i * 2 + 1) : (i * 2)) : i;
-            if (currentIdx >= maxShots || !shots[currentIdx]) continue;
+                offCtx.save();
+                offCtx.filter = FILTERS[USER_SETTINGS.filter] || 'none';
+                // Pakai rotation dari JSON (default 0)
+                const rotation = coord.rotation || 0;
+                drawImageToRect(offCtx, img, photoRect, 'cover', rotation);
+                offCtx.restore();
 
-            const img = new Image();
-            img.src = shots[currentIdx];
-            await new Promise(r => img.onload = r);
-
-            const posX = offsetX + margin;
-            const posY = margin + i * (photoH + margin);
-
-            offCtx.save();
-            offCtx.filter = FILTERS[USER_SETTINGS.filter] || 'none';
-
-
-            const targetRatio = photoW / photoH;
-            const imgRatio = img.width / img.height;
-            let sx, sy, sw, sh;
-
-            if (imgRatio > targetRatio) {
-                sh = img.height; sw = img.height * targetRatio;
-                sx = (img.width - sw) / 2; sy = 0;
-            } else {
-                sw = img.width; sh = img.width / targetRatio;
-                sx = 0; sy = (img.height - sh) / 2;
-            }
-
-            offCtx.drawImage(img, sx, sy, sw, sh, posX, posY, photoW, photoH);
-            offCtx.restore();
-
-
-            if (USER_SETTINGS.emoji) {
-                offCtx.font = "45px Arial";
-                offCtx.fillStyle = textColor;
-                offCtx.fillText(USER_SETTINGS.emoji, posX + 20, posY + 50);
+                // Render emoji jika ada
+                if (USER_SETTINGS.emoji && i === 0) {
+                    offCtx.font = "35px Arial";
+                    offCtx.fillStyle = textColor;
+                    offCtx.fillText(USER_SETTINGS.emoji,
+                        photoRect.x + 15,
+                        photoRect.y + 40);
+                }
             }
         }
 
+        // Render frame template PNG di atas foto - FIXED!
+        const frameImg = new Image();
+        const templateId = USER_SETTINGS.frameID;
+        const count = USER_SETTINGS.count;
 
-        if (useFramePNG) {
-            offCtx.drawImage(frameImg, offsetX, 0, singleStripW, offCanvas.height);
+        // Cari fileName dari frame coordinates
+        let fileName = `${templateId}.png`; // default
+        if (frameCoordinates[count] && frameCoordinates[count].templates[templateId]) {
+            fileName = frameCoordinates[count].templates[templateId].fileName || fileName;
         }
 
+        frameImg.src = `frame/${count}/${fileName}`;
+        await new Promise(r => frameImg.onload = r);
+        offCtx.drawImage(frameImg, 0, 0, offCanvas.width, offCanvas.height);
 
+        // Render teks (judul, subtitle, tanggal)
         offCtx.fillStyle = textColor;
         offCtx.textAlign = "center";
-        const centerX = offsetX + (singleStripW / 2);
-        let textY = offCanvas.height - 120;
+        const centerX = offCanvas.width / 2;
 
-
-        if (USER_SETTINGS.textPrimaryEditor) {
-            offCtx.font = "bold 40px Arial";
-            offCtx.fillText(USER_SETTINGS.textPrimaryEditor, centerX, textY);
-            textY += 45;
+        // Tentukan posisi teks berdasarkan jumlah foto
+        let textY;
+        if (count === 1) {
+            textY = offCanvas.height - 100;
+        } else {
+            textY = offCanvas.height - 80;
         }
 
+        // Render teks utama
+        if (USER_SETTINGS.textPrimaryEditor) {
+            offCtx.font = "bold 35px Arial";
+            offCtx.fillText(USER_SETTINGS.textPrimaryEditor, centerX, textY);
+            textY += 40;
+        }
 
+        // Render teks sekunder
         if (USER_SETTINGS.textSecondary) {
-            offCtx.font = "22px Arial";
+            offCtx.font = "20px Arial";
             offCtx.fillText(USER_SETTINGS.textSecondary, centerX, textY);
         }
 
-
+        // Render tanggal
         let dateStr = "";
         if (USER_SETTINGS.dateModeEditor === 'auto') {
             const d = new Date();
@@ -925,23 +1150,181 @@ async function makeCollage() {
         }
 
         if (dateStr && USER_SETTINGS.dateModeEditor !== 'off') {
-            offCtx.font = "italic 18px Arial";
-            offCtx.fillText(dateStr, centerX, offCanvas.height - 35);
+            offCtx.font = "italic 16px Arial";
+            const dateY = count === 1 ? offCanvas.height - 40 : offCanvas.height - 30;
+            offCtx.fillText(dateStr, centerX, dateY);
         }
-    };
+
+    } else {
+        // LOGIKA LAMA (untuk custom frame tanpa template)
+        const margin = 40;
+        const photoW = 600;
+        const photoH = 450;
+        const isDoubleStrip = maxShots > 3;
+        const shotsPerStrip = isDoubleStrip ? Math.ceil(maxShots / 2) : maxShots;
+        const singleStripW = photoW + (margin * 2);
+
+        offCanvas.width = isDoubleStrip ? (singleStripW * 2) : singleStripW;
+        offCanvas.height = (photoH * shotsPerStrip) + (margin * (shotsPerStrip + 1)) + 180;
 
 
-    await renderStripSection(0, false);
-    if (isDoubleStrip) {
-        await renderStripSection(singleStripW, true);
+        offCtx.clearRect(0, 0, offCanvas.width, offCanvas.height);
+
+
+        let useFramePNG = false;
+        const frameImg = new Image();
+
+        if (USER_SETTINGS.frameID) {
+            const currentFramePath = `frame/${maxShots}/${USER_SETTINGS.frameID}.png`;
+            frameImg.crossOrigin = "anonymous";
+            frameImg.src = `${currentFramePath}?t=${Date.now()}`;
+
+            try {
+                await new Promise((resolve, reject) => {
+                    frameImg.onload = () => { useFramePNG = true; resolve(); };
+                    frameImg.onerror = () => { useFramePNG = false; resolve(); };
+                });
+            } catch { useFramePNG = false; }
+        }
+
+        const renderStripSection = async (offsetX, isRightStrip) => {
+            const stripRect = { x: offsetX, y: 0, w: singleStripW, h: offCanvas.height };
+            let textColor = "#000000";
+
+
+            if (USER_SETTINGS.bgImage) {
+                const bgImg = new Image();
+                bgImg.src = USER_SETTINGS.bgImage;
+                await new Promise(r => bgImg.onload = r);
+
+                let mode = 'cover';
+
+                if (USER_SETTINGS.bgImage.includes('texture/')) {
+                    mode = 'fit';
+                }
+
+                else if (USER_SETTINGS.bgImage.startsWith('data:')) {
+                    mode = 'cover';
+                }
+
+
+                drawImageToRect(offCtx, bgImg, stripRect, mode);
+
+
+                if (typeof getAverageColor === 'function') {
+                    textColor = getContrastColor(getAverageColor(bgImg));
+                }
+            } else {
+                offCtx.fillStyle = USER_SETTINGS.useStoreColor ? USER_SETTINGS.storeColor : USER_SETTINGS.frameColor;
+                offCtx.fillRect(stripRect.x, stripRect.y, stripRect.w, stripRect.h);
+
+                if (USER_SETTINGS.useStoreColor) {
+                    const border = 15;
+                    offCtx.fillStyle = USER_SETTINGS.frameColor;
+                    offCtx.fillRect(stripRect.x + border, stripRect.y + border,
+                        stripRect.w - (border * 2), stripRect.h - (border * 2));
+                }
+                textColor = USER_SETTINGS.useStoreColor ?
+                    getContrastColor(USER_SETTINGS.storeColor) :
+                    getContrastColor(USER_SETTINGS.frameColor);
+            }
+
+
+
+            for (let i = 0; i < shotsPerStrip; i++) {
+                let currentIdx = isDoubleStrip ? (isRightStrip ? (i * 2 + 1) : (i * 2)) : i;
+                if (currentIdx >= maxShots || !shots[currentIdx]) continue;
+
+                const img = new Image();
+                img.src = shots[currentIdx];
+                await new Promise(r => img.onload = r);
+
+                const posX = offsetX + margin;
+                const posY = margin + i * (photoH + margin);
+
+                offCtx.save();
+                offCtx.filter = FILTERS[USER_SETTINGS.filter] || 'none';
+
+
+                const targetRatio = photoW / photoH;
+                const imgRatio = img.width / img.height;
+                let sx, sy, sw, sh;
+
+                if (imgRatio > targetRatio) {
+                    sh = img.height; sw = img.height * targetRatio;
+                    sx = (img.width - sw) / 2; sy = 0;
+                } else {
+                    sw = img.width; sh = img.width / targetRatio;
+                    sx = 0; sy = (img.height - sh) / 2;
+                }
+
+                offCtx.drawImage(img, sx, sy, sw, sh, posX, posY, photoW, photoH);
+                offCtx.restore();
+
+
+                if (USER_SETTINGS.emoji) {
+                    offCtx.font = "45px Arial";
+                    offCtx.fillStyle = textColor;
+                    offCtx.fillText(USER_SETTINGS.emoji, posX + 20, posY + 50);
+                }
+            }
+
+
+            if (useFramePNG) {
+                offCtx.drawImage(frameImg, offsetX, 0, singleStripW, offCanvas.height);
+            }
+
+
+            offCtx.fillStyle = textColor;
+            offCtx.textAlign = "center";
+            const centerX = offsetX + (singleStripW / 2);
+            let textY = offCanvas.height - 120;
+
+
+            if (USER_SETTINGS.textPrimaryEditor) {
+                offCtx.font = "bold 40px Arial";
+                offCtx.fillText(USER_SETTINGS.textPrimaryEditor, centerX, textY);
+                textY += 45;
+            }
+
+
+            if (USER_SETTINGS.textSecondary) {
+                offCtx.font = "22px Arial";
+                offCtx.fillText(USER_SETTINGS.textSecondary, centerX, textY);
+            }
+
+
+            let dateStr = "";
+            if (USER_SETTINGS.dateModeEditor === 'auto') {
+                const d = new Date();
+                dateStr = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+            } else if (USER_SETTINGS.dateModeEditor === 'custom' && USER_SETTINGS.customDate) {
+                const p = USER_SETTINGS.customDate.split('-');
+                if (p.length === 3) {
+                    dateStr = `${p[2]}/${p[1]}/${p[0]}`;
+                }
+            }
+
+            if (dateStr && USER_SETTINGS.dateModeEditor !== 'off') {
+                offCtx.font = "italic 18px Arial";
+                offCtx.fillText(dateStr, centerX, offCanvas.height - 35);
+            }
+        };
+
+
+        await renderStripSection(0, false);
+        if (isDoubleStrip) {
+            await renderStripSection(singleStripW, true);
+        }
     }
 
 
+    // Draw ke canvas utama
     collage.width = offCanvas.width;
     collage.height = offCanvas.height;
     const cctx = collage.getContext('2d');
     cctx.drawImage(offCanvas, 0, 0);
-};
+}
 
 
 function goToStep(step) {
