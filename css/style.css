@@ -1357,12 +1357,12 @@ button:disabled {
 }
 
 .texture-gallery {
-    display: flex;
-    flex-direction: row;
-    gap: 15px;
-    overflow-x: auto;
-    padding: 15px 5px;
-    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    max-height: 50px; /* Tinggi maksimum untuk scroll vertikal */
+    overflow-y: auto;
+    padding: 10px 5px;
     scrollbar-width: thin;
     scrollbar-color: var(--accent) transparent;
 }
@@ -1379,17 +1379,80 @@ button:disabled {
 }
 
 .texture-item {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    border-radius:12%;
     background-size: cover;
     cursor: pointer;
+}
+
+.texture-gallery .texture-item {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+}
+
+#frameTemplateGallery.texture-gallery {
+    grid-template-columns: repeat(4, 1fr);
+    max-height: 100px; /* Tinggi maksimum lebih besar untuk frame */
+}
+
+.texture-gallery::-webkit-scrollbar {
+    width: 6px;
+}
+
+.texture-gallery::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
+}
+
+.texture-gallery::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 10px;
+}
+
+.texture-gallery::-webkit-scrollbar-thumb:hover {
+    background: rgba(var(--accent-rgb), 0.8);
 }
 
 .texture-item.active {
     border-color: var(--accent);
     transform: scale(1.05);
 }
+
+.texture-gallery .texture-item {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+}
+
+#frameTemplateGallery.texture-gallery .texture-item {
+    width: 60px;
+    height: 90px;
+    border-radius: 8px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.texture-gallery .texture-item.active {
+    border-color: var(--accent);
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.3);
+}
+
 
 .footer-actions {
     display: flex;
@@ -1573,7 +1636,9 @@ body.dark-theme .result-right {
     border-radius: 4px;
     background-color: #fff;
     border: 1px solid #ddd;
+    max-height: 200px; /* Tinggi maksimum lebih besar untuk frame */
 }
+
 
 #frameTemplateGallery .texture-item.active {
     border: 2px solid var(--accent);
